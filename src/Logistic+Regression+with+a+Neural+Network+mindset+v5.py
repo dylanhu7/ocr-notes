@@ -31,7 +31,7 @@ import h5py
 import scipy
 from PIL import Image
 from scipy import ndimage
-from lr_utils import load_dataset
+from src.lr_utils import load_dataset
 
 %matplotlib inline
 
@@ -129,9 +129,13 @@ train_set_x_flatten = train_set_x_orig.reshape(train_set_x_orig.shape[0], -1).T
 test_set_x_flatten = test_set_x_orig.reshape(test_set_x_orig.shape[0], -1).T
 ### END CODE HERE ###
 
+# Result: (picture_width * picture_height * 3, number of training examples)
 print ("train_set_x_flatten shape: " + str(train_set_x_flatten.shape))
+# Result: (1, number of training examples)
 print ("train_set_y shape: " + str(train_set_y.shape))
+# Result: (picture_width * picture_height * 3, number of test examples)
 print ("test_set_x_flatten shape: " + str(test_set_x_flatten.shape))
+# Result: (1, number of test examples)
 print ("test_set_y shape: " + str(test_set_y.shape))
 print ("sanity check after reshaping: " + str(train_set_x_flatten[0:5,0]))
 
@@ -281,7 +285,7 @@ def initialize_with_zeros(dim):
     """
     
     ### START CODE HERE ### (≈ 1 line of code)
-    w = np.zeros((dim, 1), dtype = float)
+    w = np.zeros((dim, 1), dtype = int)
     b = 0
     ### END CODE HERE ###
 
