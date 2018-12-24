@@ -1,5 +1,7 @@
 import numpy as np
 import h5py
+import scipy
+from scipy import ndimage
 
 
 def load_dataset():
