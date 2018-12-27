@@ -1,14 +1,3 @@
-
-# coding: utf-8
-
-# # Logistic Regression with a Neural Network mindset
-# 
-# Welcome to your first (required) programming assignment! You will build a logistic regression classifier to recognize  cats. This assignment will step you through how to do this with a Neural Network mindset, and so will also hone your intuitions about deep learning.
-# 
-# **Instructions:**
-# - Do not use loops (for/while) in your code, unless the instructions explicitly ask you to do so.
-# 
-# **You will learn to:**
 # - Build the general architecture of a learning algorithm, including:
 #     - Initializing parameters
 #     - Calculating the cost function and its gradient
@@ -27,41 +16,13 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import h5py
+import h5py as h5
 import scipy
 from PIL import Image
 from scipy import ndimage, io
 from src.lr_utils import load_dataset
 
 %matplotlib inline
-
-# Creates an h5 file for letters called letter_train.h5 in the datasets folder by restructuring the EMNIST letter dataset, which is in Matlab format
-# Loads Matlab file
-letter_train_mat = scipy.io.loadmat("datasets\emnist-letters.mat")
-
-# Un-comment to see an example of an image
-# image1 = np.reshape(letter_train_mat["dataset"]["train"][0,0]["images"][0,0][0], (28,28))
-# plt.imshow(image1.T, cmap = "Greys")
-
-# Creates new array and reshapes each row of the original dataset into 28x28 matrices, each representing an image
-letter_image_data = []
-for i in range(len(letter_train_mat["dataset"]["train"][0,0]["images"][0,0])):
-    letter_image_data.append(np.reshape(letter_train_mat["dataset"]["train"][0,0]["images"][0,0][i], (28,28)))
-# Writes a new h5 file from the new array for compatibility with the NN
-letter_train_set = h5py.File("datasets\letter_train.h5", 'w')
-letter_train_set.create_dataset("train_set_x", data = letter_image_data)
-letter_train_set.close()
-
-# ## 2 - Overview of the Problem set ##
-# 
-# **Problem Statement**: You are given a dataset ("data.h5") containing:
-#     - a training set of m_train images labeled as cat (y=1) or non-cat (y=0)
-#     - a test set of m_test images labeled as cat or non-cat
-#     - each image is of shape (num_px, num_px, 3) where 3 is for the 3 channels (RGB). Thus, each image is square (height = num_px) and (width = num_px).
-# 
-# You will build a simple image-recognition algorithm that can correctly classify pictures as cat or non-cat.
-# 
-# Let's get more familiar with the dataset. Load the data by running the following code.
 
 # In[2]:
 
@@ -78,8 +39,8 @@ print (np.shape(train_set_x_orig))
 
 # Example of a picture
 index = 25
-plt.imshow(train_set_x_orig[index])
-print ("y = " + str(train_set_y[:, index]) + ", it's a '" + classes[np.squeeze(train_set_y[:, index])].decode("utf-8") +  "' picture.")
+plt.imshow(train_set_x_orig[index], cmap = "Greys")
+# print ("y = " + str(train_set_y[:, index]) + ", it's a '" + classes[np.squeeze(train_set_y[:, index])].decode("utf-8") +  "' picture.")
 
 
 # Many software bugs in deep learning come from having matrix/vector dimensions that don't fit. If you can keep your matrix/vector dimensions straight you will go a long way toward eliminating many bugs. 
@@ -593,21 +554,6 @@ X = np.array([[1.,-1.1,-3.2],[1.2,2.,0.1]])
 print ("predictions = " + str(predict(w, b, X)))
 
 
-# **Expected Output**: 
-# 
-# <table style="width:30%">
-#     <tr>
-#          <td>
-#              **predictions**
-#          </td>
-#           <td>
-#             [[ 1.  1.  0.]]
-#          </td>  
-#    </tr>
-# 
-# </table>
-# 
-
 # <font color='blue'>
 # **What to remember:**
 # You've implemented several functions that:
@@ -632,7 +578,7 @@ print ("predictions = " + str(predict(w, b, X)))
 
 def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate = 0.5, print_cost = False):
     """
-    Builds the logistic regression model by calling the function you've implemented previously
+    Builds the logistic regression model by calling the functions you've implemented previously
     
     Arguments:
     X_train -- training set represented by a numpy array of shape (num_px * num_px * 3, m_train)
@@ -658,7 +604,6 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
     # Retrieve parameters w and b from dictionary "parameters"
     w = parameters["w"]
     b = parameters["b"]
-    
     # Predict test/train set examples (≈ 2 lines of code)
     Y_prediction_test = predict(w, b, X_test)
     Y_prediction_train = predict(w, b, X_train)
@@ -666,18 +611,35 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
     ### END CODE HERE ###
 
     # Print train/test Errors
-    print("train accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100))
-    print("test accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_test - Y_test)) * 100))
+    train_accuracy = 100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100
+    test_accuracy = 100 - np.mean(np.abs(Y_prediction_test - Y_test)) * 100
+    print("train accuracy: {} %".format(train_accuracy))
+    print("test accuracy: {} %".format(test_accuracy))
 
     
     d = {"costs": costs,
          "Y_prediction_test": Y_prediction_test, 
          "Y_prediction_train" : Y_prediction_train, 
-         "w" : w, 
+         "w" : w,
          "b" : b,
          "learning_rate" : learning_rate,
          "num_iterations": num_iterations}
-    
+
+    # f = h5.File("parameters\parameters.h5", "w")
+    # f.create_dataset("params", data=["a"][])
+    # f.close()
+
+    params = {
+        "a": {
+            "params":parameters,
+            "grads":grads,
+            "costs":costs,
+            "train_accuracy":train_accuracy,
+            "test_accuracy":test_accuracy
+        }
+    }
+    f = scipy.io.savemat("parameters\params.mat", params)
+
     return d
 
 
@@ -685,139 +647,139 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
 
 # In[234]:
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.005, print_cost = True)
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 500, learning_rate = 1, print_cost = True)
 
 
-# **Expected Output**: 
-# 
-# <table style="width:40%"> 
-# 
-#     <tr>
-#         <td> **Cost after iteration 0 **  </td> 
-#         <td> 0.693147 </td>
-#     </tr>
-#       <tr>
-#         <td> <center> $\vdots$ </center> </td> 
-#         <td> <center> $\vdots$ </center> </td> 
-#     </tr>  
-#     <tr>
-#         <td> **Train Accuracy**  </td> 
-#         <td> 99.04306220095694 % </td>
-#     </tr>
-# 
-#     <tr>
-#         <td>**Test Accuracy** </td> 
-#         <td> 70.0 % </td>
-#     </tr>
-# </table> 
-# 
-# 
-# 
+# # **Expected Output**: 
+# # 
+# # <table style="width:40%"> 
+# # 
+# #     <tr>
+# #         <td> **Cost after iteration 0 **  </td> 
+# #         <td> 0.693147 </td>
+# #     </tr>
+# #       <tr>
+# #         <td> <center> $\vdots$ </center> </td> 
+# #         <td> <center> $\vdots$ </center> </td> 
+# #     </tr>  
+# #     <tr>
+# #         <td> **Train Accuracy**  </td> 
+# #         <td> 99.04306220095694 % </td>
+# #     </tr>
+# # 
+# #     <tr>
+# #         <td>**Test Accuracy** </td> 
+# #         <td> 70.0 % </td>
+# #     </tr>
+# # </table> 
+# # 
+# # 
+# # 
 
-# **Comment**: Training accuracy is close to 100%. This is a good sanity check: your model is working and has high enough capacity to fit the training data. Test error is 68%. It is actually not bad for this simple model, given the small dataset we used and that logistic regression is a linear classifier. But no worries, you'll build an even better classifier next week!
-# 
-# Also, you see that the model is clearly overfitting the training data. Later in this specialization you will learn how to reduce overfitting, for example by using regularization. Using the code below (and changing the `index` variable) you can look at predictions on pictures of the test set.
+# # **Comment**: Training accuracy is close to 100%. This is a good sanity check: your model is working and has high enough capacity to fit the training data. Test error is 68%. It is actually not bad for this simple model, given the small dataset we used and that logistic regression is a linear classifier. But no worries, you'll build an even better classifier next week!
+# # 
+# # Also, you see that the model is clearly overfitting the training data. Later in this specialization you will learn how to reduce overfitting, for example by using regularization. Using the code below (and changing the `index` variable) you can look at predictions on pictures of the test set.
 
-# In[231]:
+# # In[231]:
 
-# Example of a picture that was wrongly classified.
-index = 5
-plt.imshow(test_set_x[:,index].reshape((num_px, num_px, 3)))
-print ("y = " + str(test_set_y[0][index]) + ", you predicted that it is a \"" + classes[int(d["Y_prediction_test"][0][index])].decode("utf-8") +  "\" picture.")
-
-
-# Let's also plot the cost function and the gradients.
-
-# In[232]:
-
-# Plot learning curve (with costs)
-costs = np.squeeze(d['costs'])
-plt.plot(costs)
-plt.ylabel('cost')
-plt.xlabel('iterations (per hundreds)')
-plt.title("Learning rate =" + str(d["learning_rate"]))
-plt.show()
+# # Example of a picture that was wrongly classified.
+# index = 5
+# plt.imshow(test_set_x[:,index].reshape((num_px, num_px, 3)))
+# print ("y = " + str(test_set_y[0][index]) + ", you predicted that it is a \"" + classes[int(d["Y_prediction_test"][0][index])].decode("utf-8") +  "\" picture.")
 
 
-# **Interpretation**:
-# You can see the cost decreasing. It shows that the parameters are being learned. However, you see that you could train the model even more on the training set. Try to increase the number of iterations in the cell above and rerun the cells. You might see that the training set accuracy goes up, but the test set accuracy goes down. This is called overfitting. 
+# # Let's also plot the cost function and the gradients.
 
-# ## 6 - Further analysis (optional/ungraded exercise) ##
-# 
-# Congratulations on building your first image classification model. Let's analyze it further, and examine possible choices for the learning rate $\alpha$. 
+# # In[232]:
 
-# #### Choice of learning rate ####
-# 
-# **Reminder**:
-# In order for Gradient Descent to work you must choose the learning rate wisely. The learning rate $\alpha$  determines how rapidly we update the parameters. If the learning rate is too large we may "overshoot" the optimal value. Similarly, if it is too small we will need too many iterations to converge to the best values. That's why it is crucial to use a well-tuned learning rate.
-# 
-# Let's compare the learning curve of our model with several choices of learning rates. Run the cell below. This should take about 1 minute. Feel free also to try different values than the three we have initialized the `learning_rates` variable to contain, and see what happens. 
-
-# In[235]:
-
-learning_rates = [0.01, 0.001, 0.0001]
-models = {}
-for i in learning_rates:
-    print ("learning rate is: " + str(i))
-    models[str(i)] = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 1500, learning_rate = i, print_cost = False)
-    print ('\n' + "-------------------------------------------------------" + '\n')
-
-for i in learning_rates:
-    plt.plot(np.squeeze(models[str(i)]["costs"]), label= str(models[str(i)]["learning_rate"]))
-
-plt.ylabel('cost')
-plt.xlabel('iterations (hundreds)')
-
-legend = plt.legend(loc='upper center', shadow=True)
-frame = legend.get_frame()
-frame.set_facecolor('0.90')
-plt.show()
+# # Plot learning curve (with costs)
+# costs = np.squeeze(d['costs'])
+# plt.plot(costs)
+# plt.ylabel('cost')
+# plt.xlabel('iterations (per hundreds)')
+# plt.title("Learning rate =" + str(d["learning_rate"]))
+# plt.show()
 
 
-# **Interpretation**: 
-# - Different learning rates give different costs and thus different predictions results.
-# - If the learning rate is too large (0.01), the cost may oscillate up and down. It may even diverge (though in this example, using 0.01 still eventually ends up at a good value for the cost). 
-# - A lower cost doesn't mean a better model. You have to check if there is possibly overfitting. It happens when the training accuracy is a lot higher than the test accuracy.
-# - In deep learning, we usually recommend that you: 
-#     - Choose the learning rate that better minimizes the cost function.
-#     - If your model overfits, use other techniques to reduce overfitting. (We'll talk about this in later videos.) 
-# 
+# # **Interpretation**:
+# # You can see the cost decreasing. It shows that the parameters are being learned. However, you see that you could train the model even more on the training set. Try to increase the number of iterations in the cell above and rerun the cells. You might see that the training set accuracy goes up, but the test set accuracy goes down. This is called overfitting. 
 
-# ## 7 - Test with your own image (optional/ungraded exercise) ##
-# 
-# Congratulations on finishing this assignment. You can use your own image and see the output of your model. To do that:
-#     1. Click on "File" in the upper bar of this notebook, then click "Open" to go on your Coursera Hub.
-#     2. Add your image to this Jupyter Notebook's directory, in the "images" folder
-#     3. Change your image's name in the following code
-#     4. Run the code and check if the algorithm is right (1 = cat, 0 = non-cat)!
+# # ## 6 - Further analysis (optional/ungraded exercise) ##
+# # 
+# # Congratulations on building your first image classification model. Let's analyze it further, and examine possible choices for the learning rate $\alpha$. 
 
-# In[ ]:
+# # #### Choice of learning rate ####
+# # 
+# # **Reminder**:
+# # In order for Gradient Descent to work you must choose the learning rate wisely. The learning rate $\alpha$  determines how rapidly we update the parameters. If the learning rate is too large we may "overshoot" the optimal value. Similarly, if it is too small we will need too many iterations to converge to the best values. That's why it is crucial to use a well-tuned learning rate.
+# # 
+# # Let's compare the learning curve of our model with several choices of learning rates. Run the cell below. This should take about 1 minute. Feel free also to try different values than the three we have initialized the `learning_rates` variable to contain, and see what happens. 
 
-## START CODE HERE ## (PUT YOUR IMAGE NAME) 
-my_image = "my_image.jpg"   # change this to the name of your image file 
-## END CODE HERE ##
+# # In[235]:
 
-# We preprocess the image to fit your algorithm.
-fname = "images/" + my_image
-image = np.array(ndimage.imread(fname, flatten=False))
-my_image = scipy.misc.imresize(image, size=(num_px,num_px)).reshape((1, num_px*num_px*3)).T
-my_predicted_image = predict(d["w"], d["b"], my_image)
+# learning_rates = [0.01, 0.001, 0.0001]
+# models = {}
+# for i in learning_rates:
+#     print ("learning rate is: " + str(i))
+#     models[str(i)] = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 1500, learning_rate = i, print_cost = False)
+#     print ('\n' + "-------------------------------------------------------" + '\n')
 
-plt.imshow(image)
-print("y = " + str(np.squeeze(my_predicted_image)) + ", your algorithm predicts a \"" + classes[int(np.squeeze(my_predicted_image)),].decode("utf-8") +  "\" picture.")
+# for i in learning_rates:
+#     plt.plot(np.squeeze(models[str(i)]["costs"]), label= str(models[str(i)]["learning_rate"]))
+
+# plt.ylabel('cost')
+# plt.xlabel('iterations (hundreds)')
+
+# legend = plt.legend(loc='upper center', shadow=True)
+# frame = legend.get_frame()
+# frame.set_facecolor('0.90')
+# plt.show()
 
 
-# <font color='blue'>
-# **What to remember from this assignment:**
-# 1. Preprocessing the dataset is important.
-# 2. You implemented each function separately: initialize(), propagate(), optimize(). Then you built a model().
-# 3. Tuning the learning rate (which is an example of a "hyperparameter") can make a big difference to the algorithm. You will see more examples of this later in this course!
+# # **Interpretation**: 
+# # - Different learning rates give different costs and thus different predictions results.
+# # - If the learning rate is too large (0.01), the cost may oscillate up and down. It may even diverge (though in this example, using 0.01 still eventually ends up at a good value for the cost). 
+# # - A lower cost doesn't mean a better model. You have to check if there is possibly overfitting. It happens when the training accuracy is a lot higher than the test accuracy.
+# # - In deep learning, we usually recommend that you: 
+# #     - Choose the learning rate that better minimizes the cost function.
+# #     - If your model overfits, use other techniques to reduce overfitting. (We'll talk about this in later videos.) 
+# # 
 
-# Finally, if you'd like, we invite you to try different things on this Notebook. Make sure you submit before trying anything. Once you submit, things you can play with include:
-#     - Play with the learning rate and the number of iterations
-#     - Try different initialization methods and compare the results
-#     - Test other preprocessings (center the data, or divide each row by its standard deviation)
+# # ## 7 - Test with your own image (optional/ungraded exercise) ##
+# # 
+# # Congratulations on finishing this assignment. You can use your own image and see the output of your model. To do that:
+# #     1. Click on "File" in the upper bar of this notebook, then click "Open" to go on your Coursera Hub.
+# #     2. Add your image to this Jupyter Notebook's directory, in the "images" folder
+# #     3. Change your image's name in the following code
+# #     4. Run the code and check if the algorithm is right (1 = cat, 0 = non-cat)!
 
-# Bibliography:
-# - http://www.wildml.com/2015/09/implementing-a-neural-network-from-scratch/
-# - https://stats.stackexchange.com/questions/211436/why-do-we-normalize-images-by-subtracting-the-datasets-image-mean-and-not-the-c
+# # In[ ]:
+
+# ## START CODE HERE ## (PUT YOUR IMAGE NAME) 
+# my_image = "my_image.jpg"   # change this to the name of your image file 
+# ## END CODE HERE ##
+
+# # We preprocess the image to fit your algorithm.
+# fname = "images/" + my_image
+# image = np.array(ndimage.imread(fname, flatten=False))
+# my_image = scipy.misc.imresize(image, size=(num_px,num_px)).reshape((1, num_px*num_px*3)).T
+# my_predicted_image = predict(d["w"], d["b"], my_image)
+
+# plt.imshow(image)
+# print("y = " + str(np.squeeze(my_predicted_image)) + ", your algorithm predicts a \"" + classes[int(np.squeeze(my_predicted_image)),].decode("utf-8") +  "\" picture.")
+
+
+# # <font color='blue'>
+# # **What to remember from this assignment:**
+# # 1. Preprocessing the dataset is important.
+# # 2. You implemented each function separately: initialize(), propagate(), optimize(). Then you built a model().
+# # 3. Tuning the learning rate (which is an example of a "hyperparameter") can make a big difference to the algorithm. You will see more examples of this later in this course!
+
+# # Finally, if you'd like, we invite you to try different things on this Notebook. Make sure you submit before trying anything. Once you submit, things you can play with include:
+# #     - Play with the learning rate and the number of iterations
+# #     - Try different initialization methods and compare the results
+# #     - Test other preprocessings (center the data, or divide each row by its standard deviation)
+
+# # Bibliography:
+# # - http://www.wildml.com/2015/09/implementing-a-neural-network-from-scratch/
+# # - https://stats.stackexchange.com/questions/211436/why-do-we-normalize-images-by-subtracting-the-datasets-image-mean-and-not-the-c
