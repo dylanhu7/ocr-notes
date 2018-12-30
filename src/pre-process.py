@@ -19,6 +19,7 @@ fl_image -= imin
 fl_image *= 255/irange
 image = fl_image.astype(int)
 image = image.reshape(784, 1)
+# Should find matrix operation that does this more efficiently
 for i in range(784):
     if(image[i] < 20):
         image[i] = 0

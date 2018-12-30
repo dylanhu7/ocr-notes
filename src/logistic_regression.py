@@ -22,6 +22,7 @@ from PIL import Image
 from scipy import ndimage, io
 from src.lr_utils import load_dataset
 
+get_ipython().run_line_magic('matplotlib', 'inline')
 
 # In[2]:
 

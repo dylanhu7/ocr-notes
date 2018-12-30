@@ -7,7 +7,6 @@ from scipy import io
 import os
 import time
 
-%matplotlib inline
 
 # Creates an h5 file for letters called letter_train.h5 in the datasets folder by restructuring the EMNIST letter dataset, which is in Matlab format
 # Loads Matlab file
