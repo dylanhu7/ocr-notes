@@ -22,7 +22,6 @@ from PIL import Image
 from scipy import ndimage, io
 from src.lr_utils import load_dataset
 
-get_ipython().run_line_magic('matplotlib', 'inline')
 
 # In[2]:
 
@@ -648,7 +647,7 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
 
 # In[234]:
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 5000, learning_rate = 0.1, print_cost = True)
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 500, learning_rate = 0.1, print_cost = True)
 
 
 # # **Expected Output**: 

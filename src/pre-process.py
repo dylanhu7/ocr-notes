@@ -8,6 +8,7 @@ from src.lr_utils import load_dataset
 from PIL import Image
 from scipy import ndimage, io
 
+# In[2]
 image = np.array(ndimage.imread("images\\a_2.jpg", flatten=True))
 image = 255 - image
 image = scipy.misc.imresize(image, size=(28, 28))
@@ -30,7 +31,7 @@ image = np.reshape(image, (28, 28))
 plt.imshow(image, cmap="Greys")
 print(image)
 
-# In[2]
+# In[3]
 train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
 index = 126582
 image = train_set_x_orig[index]

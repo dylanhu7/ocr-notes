@@ -2,12 +2,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
-import scipy
-from scipy import io
+import scipy.io
 import os
-import time
 
-
+#In [2]
 # Creates an h5 file for letters called letter_train.h5 in the datasets folder by restructuring the EMNIST letter dataset, which is in Matlab format
 # Loads Matlab file
 letter_train_mat = scipy.io.loadmat("datasets\emnist-letters.mat")
