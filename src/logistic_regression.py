@@ -638,7 +638,7 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
             "test_accuracy":test_accuracy
         }
     }
-    scipy.io.savemat("parameters\params.mat", params)
+    scipy.io.savemat("parameters/params.mat", params)
 
     return d
 

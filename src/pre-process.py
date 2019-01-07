@@ -9,8 +9,9 @@ from PIL import Image
 from scipy import ndimage, io
 
 # In[2]
-image = np.array(ndimage.imread("images\\a_2.jpg", flatten=True))
+image = ndimage.imread("images/a_2.jpg", flatten=True)
 image = 255 - image
+print(type(image))
 image = scipy.misc.imresize(image, size=(28, 28))
 fl_image = np.asfarray(image)
 imax = np.amax(image)
@@ -36,7 +37,7 @@ train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_datas
 index = 126582
 image = train_set_x_orig[index]
 plt.imshow(train_set_x_orig[index], cmap="Greys")
-params = scipy.io.loadmat("parameters\params.mat")
+params = scipy.io.loadmat("parameters/params.mat")
 w = params["a"]["params"][0, 0]["w"][0, 0]
 b = params["a"]["params"][0, 0]["b"][0, 0]
 image = image.reshape(784, 1)

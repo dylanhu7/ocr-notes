@@ -10,13 +10,13 @@ from PIL import Image
 from scipy import ndimage, io
 
 # In[2]
-image = ndimage.imread("images\\paper_1_cropped.jpg", flatten=True)
+image = ndimage.imread("images/paper_1_cropped.jpg", flatten=True)
 print(image)
 image = 255 - image
 plt.imshow(image, cmap="Greys")
 print(np.shape(image))
 print(image)
-scipy.io.savemat('datasets\\image.mat', mdict={'image': image})
+scipy.io.savemat('datasets/image.mat', mdict={'image': image})
 
 
 # In[3]
@@ -63,7 +63,7 @@ for i in range(div_count):
     print(np.shape(section))
     sections.append(section)
 
-scipy.io.savemat('datasets\\first_col.mat', mdict={'image': sections})
+scipy.io.savemat('datasets/first_col.mat', mdict={'image': sections})
 
 # for i in range(div_count):
 #     section = last_col[i*div_width:(i+1)*div_width - 1]
