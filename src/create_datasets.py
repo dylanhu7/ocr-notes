@@ -28,6 +28,11 @@ for i in range(len(letter_mat["dataset"]["train"][0, 0]["labels"][0, 0])):
     else:
         letter_image_labels.append(0)
         letter_image_data.append(image)
+randomize = np.arange(len(letter_image_data))
+np.random.shuffle(randomize)
+for i in range(len(letter_image_data)):
+    letter_image_data[i] = letter_image_data[randomize[i]]
+    letter_image_labels[i] = letter_image_labels[randomize[i]]
 # # Writes a new h5 file from the new array for compatibility with the NN
 os.remove("datasets/letter_train.h5")
 letter_train_set = h5py.File("datasets/letter_train.h5", 'w')
