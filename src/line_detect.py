@@ -8,10 +8,9 @@ from src.logistic_regression import predict
 from src.lr_utils import load_dataset
 from PIL import Image
 from scipy import ndimage, io
-from pathlib import Path
 
 # In[2]
-image = ndimage.imread(Path("images/paper_1_cropped.jpg"), flatten=True)
+image = ndimage.imread("images/paper_1_cropped.jpg", flatten=True)
 print(image)
 image = 255 - image
 plt.imshow(image, cmap="Greys")
@@ -31,47 +30,60 @@ div_count = 5
 div_width = int(len(first_col)/div_count)
 remainder = len(first_col) % div_count
 
-for c in range(2):
-    if c == 0:
-        col = first_col
-    else:
-        col = last_col
-    sections = []
-    for i in range(div_count):
-        if i == div_count - 1:
-            section = col[i*div_width:(i+1)*div_width + remainder]
+sections = []
+for i in range(div_count):
+    section = first_col[i*div_width:(i+1)*div_width - 1]
+    print(np.shape(section))
+    imax = np.amax(section)
+    imin = np.amin(section)
+    irange = imax - imin
+    section -= imin
+    section *= 255/irange
+    hist = plt.hist(section, bins=10)
+    diffs = []
+    for j in range(len(hist[0])-2):
+        first = hist[0][j]
+        second = hist[0][j+1]
+        # bigger = first
+        # smaller = second
+        # if (second > first):
+        #     bigger, smaller = smaller, bigger
+        diffs.append(first/second)
+    diff_max = np.amax(diffs)
+    # print(diffs)
+    diff_max_index = diffs.index(diff_max) + 1
+    print(hist)
+    print(hist[1][diff_max_index])
+    for i in range(len(section)):
+        if section[i] < hist[1][diff_max_index]:
+            section[i] = 0
         else:
-            section = col[i*div_width:(i+1)*div_width]
-        print(np.shape(section))
-        imax = np.amax(section)
-        imin = np.amin(section)
-        irange = imax - imin
-        section -= imin
-        section *= 255/irange
-        hist = plt.hist(section, bins=10)
-        diffs = []
-        for j in range(len(hist[0])-2):
-            first = hist[0][j]
-            second = hist[0][j+1]
-            # bigger = first
-            # smaller = second
-            # if (second > first):
-            #     bigger, smaller = smaller, bigger
-            diffs.append(first/second)
-        diff_max = np.amax(diffs)
-        # print(diffs)
-        diff_max_index = diffs.index(diff_max) + 1
-        print(hist)
-        print(hist[1][diff_max_index])
-        for i in range(len(section)):
-            if section[i] < hist[1][diff_max_index]:
-                section[i] = 0
-            else:
-                section[i] = 255
-        print(np.shape(section))
-        sections = np.append(sections, section)
-        print(np.shape(sections))
-    if c == 0:
-        scipy.io.savemat('datasets/first_col.mat', mdict={'col': sections})
-    else:
-        scipy.io.savemat('datasets/last_col.mat', mdict={'col': sections})
+            section[i] = 255
+        # if section[i] > 0
+    print(np.shape(section))
+    sections.append(section)
+
+scipy.io.savemat('datasets/first_col.mat', mdict={'image': sections})
+
+# for i in range(div_count):
+#     section = last_col[i*div_width:(i+1)*div_width - 1]
+#     imax = np.amax(section)
+#     imin = np.amin(section)
+#     irange = imax - imin
+#     section -= imin
+#     section *= 255/irange
+#     hist = plt.hist(section, bins=10)
+#     diffs = []
+#     for j in range(len(hist[0])-2):
+#         first = hist[0][j]
+#         second = hist[0][j+1]
+#         # bigger = first
+#         # smaller = second
+#         # if (second > first):
+#         #     bigger, smaller = smaller, bigger
+#         diffs.append(first/second)
+#     diff_max = np.amax(diffs)
+#     # print(diffs)
+#     diff_max_index = diffs.index(diff_max) + 1
+#     print(hist)
+#     print(hist[1][diff_max_index])
