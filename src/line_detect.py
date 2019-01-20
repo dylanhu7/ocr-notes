@@ -10,7 +10,7 @@ from PIL import Image
 from scipy import ndimage, io
 from pathlib import Path
 
-# In[2]
+# In[2]d
 image = ndimage.imread(Path("images/paper_1_cropped.jpg"), flatten=True)
 print(image)
 image = 255 - image
