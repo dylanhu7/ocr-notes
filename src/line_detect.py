@@ -8,10 +8,9 @@ from src.logistic_regression import predict
 from src.lr_utils import load_dataset
 from PIL import Image
 from scipy import ndimage, io
-from pathlib import Path
 
 # In[2]d
-image = ndimage.imread(Path("images/paper_1_cropped.jpg"), flatten=True)
+image = ndimage.imread("images/paper_1_cropped.jpg", flatten=True)
 print(image)
 image = 255 - image
 plt.imshow(image, cmap="Greys")
@@ -23,10 +22,10 @@ scipy.io.savemat('datasets/image.mat', mdict={'image': image})
 # In[3]
 first = image[:, 0]
 last = image[:, len(image[1]) - 1]
-# plt.hist(first)
 first_col = copy.copy(first)
 last_col = copy.copy(last)
 
+line_width = len(image) * 0.002
 div_count = 5
 div_width = int(len(first_col)/div_count)
 remainder = len(first_col) % div_count
@@ -53,10 +52,6 @@ for c in range(2):
         for j in range(len(hist[0])-2):
             first = hist[0][j]
             second = hist[0][j+1]
-            # bigger = first
-            # smaller = second
-            # if (second > first):
-            #     bigger, smaller = smaller, bigger
             diffs.append(first/second)
         diff_max = np.amax(diffs)
         # print(diffs)
@@ -71,6 +66,19 @@ for c in range(2):
         print(np.shape(section))
         sections = np.append(sections, section)
         print(np.shape(sections))
+    starts = np.where(np.diff(sections) == 255)
+    starts = starts[0]
+    ends = np.where(np.diff(sections) == -255)
+    ends = ends[0]
+    if sections[0] == 255:
+        starts = np.insert(starts, 0, 0)
+    if sections[len(sections) - 1] == 255:
+        ends = np.append(ends, len(sections) - 1)
+    widths = starts - ends
+    print(sections[len(sections) - 1])
+    print(starts)
+    print(ends)
+    # print(widths)
     if c == 0:
         scipy.io.savemat('datasets/first_col.mat', mdict={'col': sections})
     else:
