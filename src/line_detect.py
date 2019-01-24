@@ -41,7 +41,6 @@ for c in range(2):
             section = col[i*div_width:(i+1)*div_width + remainder]
         else:
             section = col[i*div_width:(i+1)*div_width]
-        print(np.shape(section))
         imax = np.amax(section)
         imin = np.amin(section)
         irange = imax - imin
@@ -54,32 +53,35 @@ for c in range(2):
             second = hist[0][j+1]
             diffs.append(first/second)
         diff_max = np.amax(diffs)
-        # print(diffs)
         diff_max_index = diffs.index(diff_max) + 1
-        print(hist)
-        print(hist[1][diff_max_index])
         for i in range(len(section)):
             if section[i] < hist[1][diff_max_index]:
                 section[i] = 0
             else:
                 section[i] = 255
-        print(np.shape(section))
         sections = np.append(sections, section)
-        print(np.shape(sections))
     starts = np.where(np.diff(sections) == 255)
-    starts = starts[0]
+    starts = starts[0] + 1
     ends = np.where(np.diff(sections) == -255)
-    ends = ends[0]
+    ends = ends[0] + 1
     if sections[0] == 255:
         starts = np.insert(starts, 0, 0)
     if sections[len(sections) - 1] == 255:
-        ends = np.append(ends, len(sections) - 1)
-    widths = starts - ends
-    print(sections[len(sections) - 1])
-    print(starts)
-    print(ends)
-    # print(widths)
+        ends = np.append(ends, len(sections))
+    widths = ends - starts
+    clean_starts = []
+    clean_ends = []
+    for i in range(len(widths)):
+        if widths[i] > 7:
+            clean_starts.append(starts[i])
+            clean_ends.append(ends[i])
+    print(clean_starts)
+    print(clean_ends)
     if c == 0:
         scipy.io.savemat('datasets/first_col.mat', mdict={'col': sections})
+        scipy.io.savemat('datasets/first_col_starts_ends.mat',
+                         mdict={'starts': clean_starts, 'ends': clean_ends})
     else:
         scipy.io.savemat('datasets/last_col.mat', mdict={'col': sections})
+        scipy.io.savemat('datasets/last_col_starts_ends.mat',
+                         mdict={'starts': clean_starts, 'ends': clean_ends})
